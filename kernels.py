@@ -20,7 +20,7 @@ class rbf_kernel():
 
         # Hitung partial differentialnya
         partial_sigma = RBF(self.l, length_scale_bounds = 'fixed').__call__(X, Y) 
-        partial_l = (self.sigma/self.l**3)*norm_matrix @ RBF(self.l, 
+        partial_l = (self.sigma**2/self.l**3)*norm_matrix @ RBF(self.l, 
                                                           length_scale_bounds = 'fixed').__call__(X, Y) 
         return partial_sigma, partial_l
 
