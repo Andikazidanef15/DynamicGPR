@@ -109,21 +109,14 @@ class DynamicGPR():
 
                 # Update kernel
                 self.kernel = ard_kernel(weight = self.weight, sigma = self.sigma)
-            '''
-            # Make prediction if eval = True
-            if eval_data != None:
-                y_pred, var_pred = self.predict(eval_data[0])
-                mse = mean_squared_error(eval_data[1], y_pred)
-                t.set_description('Loss (MSE=%g)' % mse)'''
-
+                
     def predict(self, X_test, center_cluster = False, eval_kernel = False, return_var = False):
         # Check dimention of X_test
         if X_test.ndim == 1:
             X_test_mat = X_test.reshape(-1, 1)
         else:
             X_test_mat = X_test
-        
-
+  
         # Inisiasi Kernel(X,C), q^T, q
         kernel_x_c = self.kernel.fit(X_test_mat, self.center_clusters)
         kernel_c_x = self.kernel.fit(self.center_clusters, X_test_mat)
