@@ -124,6 +124,9 @@ class DynamicGPR():
         q = np.transpose(q_transpose)
         K = self.kernel.fit(self.center_clusters, self.center_clusters)
         K = K + 0.01*np.identity(K.shape[0])
+            
+        # Cek apakah matriks invers K singular, jika iya, tambahkan dengan matriks identitas
+        K_inv = np.linalg.inv(K)
         
         if return_var == True:
             # Inisiasi Kernel(X,X)
@@ -134,9 +137,6 @@ class DynamicGPR():
             sum_1 = kernel_x_c @ K_inv @ kernel_c_x
             sum_2 = kernel_x_c @ K_inv @ self.S @ K_inv @ kernel_c_x
             var_pred = kernel_x_x - sum_1 + sum_2
-            
-        # Cek apakah matriks invers K singular, jika iya, tambahkan dengan matriks identitas
-        K_inv = np.linalg.inv(K)
     
         # Predict
         y_pred = q_transpose @ K_inv @ self.m
