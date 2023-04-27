@@ -19,7 +19,7 @@ class rbf_kernel():
                 norm_matrix[i, j] = np.linalg.norm(X[i] - Y[j])**2
 
         # Hitung partial differentialnya
-        partial_sigma = RBF(self.l, length_scale_bounds = 'fixed').__call__(X, Y) 
+        partial_sigma = 2*self.sigma*RBF(self.l, length_scale_bounds = 'fixed').__call__(X, Y) 
         partial_l = (self.sigma**2/self.l**3)*norm_matrix @ RBF(self.l, 
                                                           length_scale_bounds = 'fixed').__call__(X, Y) 
         return partial_sigma, partial_l
@@ -51,11 +51,11 @@ class ard_kernel():
             for j in range(len(Y)):
                 # Hitung partial diff sigma
                 sum_of_feats = self.calculate_sum(X[i,:], Y[j,:])
-                partial_diff_sigma[i, j] = np.exp(-0.5*sum_of_feats)
+                partial_diff_sigma[i, j] = 2*self.sigma*np.exp(-0.5*sum_of_feats)
                 
                 # Hitung partial diff weight untuk setiap weight
                 for n, weight_mat in enumerate(partial_diff_weight):
-                    weight_mat[i, j] = -0.5*((X[i, n] - Y[j, n])**2)*np.exp(-0.5 * sum_of_feats)
+                    weight_mat[i, j] = -0.5*((X[i, n] - Y[j, n])**2)*(self.sigma**2)*np.exp(-0.5 * sum_of_feats)
                     partial_diff_weight[n] = weight_mat
                     
         return partial_diff_sigma, partial_diff_weight
