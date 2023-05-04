@@ -110,64 +110,78 @@ class DynamicGPR():
                 # Update kernel
                 self.kernel = ard_kernel(weight = self.weight, sigma = self.sigma)
                 
-    def predict(self, X_test, center_cluster = False, eval_kernel = False, return_var = False):
+   def predict(self, X_test, center_cluster = False, eval_kernel = False):
         # Check dimention of X_test
         if X_test.ndim == 1:
             X_test_mat = X_test.reshape(-1, 1)
         else:
             X_test_mat = X_test
-  
-        # Inisiasi Kernel(X,C), q^T, q
-        kernel_x_c = self.kernel.fit(X_test_mat, self.center_clusters)
-        kernel_c_x = self.kernel.fit(self.center_clusters, X_test_mat)
-        q_transpose = self.kernel.fit(X_test_mat, self.center_clusters)
-        q = np.transpose(q_transpose)
-        K = self.kernel.fit(self.center_clusters, self.center_clusters)
-        K = K + 0.01*np.identity(K.shape[0])
-            
-        # Cek apakah matriks invers K singular, jika iya, tambahkan dengan matriks identitas
-        K_inv = np.linalg.inv(K)
+
+         # Set trange
+        t = trange(0, X_test_mat.shape[0], self.batch_size, desc = 'Test Prediction')
         
-        if return_var == True:
+        # Initiate params, mean_pred, var_pred
+        params = []
+        mean_pred = []
+        var_pred = []
+
+        for n in t:
+            # Inisiasi Kernel(X,C), q^T, q
+            test_batch = X_test_mat[n : n + self.batch_size, :]
+            kernel_x_c = self.kernel.fit(test_batch, self.center_clusters)
+            kernel_c_x = self.kernel.fit(self.center_clusters, test_batch)
+            q_transpose = self.kernel.fit(test_batch, self.center_clusters)
+            K = self.kernel.fit(self.center_clusters, self.center_clusters)
+
+            # Cek apakah matriks invers K singular, jika iya, tambahkan dengan matriks identitas
+            # ----------------------------------------------------------------------------------
+            K_inv = np.linalg.inv(K)
+
             # Inisiasi Kernel(X,X)
-            kernel_x_x = self.kernel.fit(X_test_mat, X_test_mat)
+            diag_kernel_x_x = np.array([self.sigma**2 for i in range(test_batch.shape[0])])
+
             # Hitung perkalian matriks pada rumus var_pred
-            #sum_1 = kernel_x_c @ K_inv @ kernel_c_x
-            #sum_2 = kernel_x_c @ K_inv @ self.S @ K_inv @ kernel_c_x
             sum_1 = kernel_x_c @ K_inv @ kernel_c_x
+            diag_sum_1 = np.array([sum_1[i][i] for i in range(sum_1.shape[0])])
+
             sum_2 = kernel_x_c @ K_inv @ self.S @ K_inv @ kernel_c_x
-            var_pred = kernel_x_x - sum_1 + sum_2
-    
-        # Predict
-        y_pred = q_transpose @ K_inv @ self.m
-        y_pred = y_pred.flatten()
-    
+            diag_sum_2 = np.array([sum_2[i][i] for i in range(sum_2.shape[0])])
+
+            var = diag_kernel_x_x - diag_sum_1 + diag_sum_2
+            var_pred.extend(var)
+
+            # Predict
+            y_pred = q_transpose @ K_inv @ self.m
+            y_pred = y_pred.flatten()
+            mean_pred.extend(y_pred)
+        
         if center_cluster == False:
             if eval_kernel == True:
                 if self.kernel_type == 'RBF':
                     print('RBF Optimized')
                     print('Optimized length scale:', self.l)
+                    params.append(self.l)
                     print('Optimized sigma signal:', self.sigma)
+                    params.append(self.sigma)
                 elif self.kernel_type == 'ARD':
                     print('ARD Optimized')
                     print('Optimized weight:', self.weight)
+                    params.extend(self.weight)
                     print('Optimized sigma signal:', self.sigma)
-                    
-            if return_var == True:    
-                return y_pred, var_pred
-            else:
-                return y_pred
+                    params.append(self.sigma)
+                return np.array(mean_pred), np.array(var_pred), params
         else:
             if eval_kernel == True:
                 if self.kernel_type == 'RBF':
                     print('RBF Optimized')
                     print('Optimized length scale:', self.l)
+                    params.append(self.l)
                     print('Optimized sigma signal:', self.sigma)
+                    params.append(self.sigma)
                 elif self.kernel_type == 'ARD':
                     print('ARD Optimized')
                     print('Optimized weight:', self.weight)
+                    params.extend(self.weight)
                     print('Optimized sigma signal:', self.sigma)
-            if return_var == True:
-                return y_pred, var_pred, self.center_clusters.flatten()
-            else:
-                return y_pred, self.center_clusters.flatten()
+                    params.append(self.sigma)
+                return np.array(mean_pred), np.array(var_pred), self.center_clusters.flatten(), params
