@@ -21,7 +21,7 @@ class DynamicGPR():
         
         self.batch_size = batch_size
     
-    def fit(self, X_train, y_train, eval_data = None):
+    def fit(self, X_train, y_train, eval_data = None, randomized = False):
         # Check wheter X_train n_dim is 1 
         if X_train.ndim == 1:
             X_train_mat = X_train.reshape(-1, 1)
@@ -40,10 +40,14 @@ class DynamicGPR():
         t = trange(0, X_train.shape[0], self.batch_size, desc = 'ML')
 
         for n in t:
+            if randomized == True:
+                random_choice = np.random.choice(X_train.shape[0], self.batch_size, replace = False)
+                obs = X_train_mat[random_choice, :]
+            else:
+                obs = X_train_mat[n : n + self.batch_size, :]
             # Update m dan S 
             # ----------------------------------------
             # Inisiasi Kernel(X,X), Kernel(X,C), Kernel(C,X), q^T, q, K
-            obs = X_train_mat[n : n + self.batch_size, :]
             kernel_x_x = self.kernel.fit(obs, obs)
             kernel_x_c = self.kernel.fit(obs, self.center_clusters)
             kernel_c_x = self.kernel.fit(self.center_clusters, obs)
