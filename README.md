@@ -1,7 +1,12 @@
 # Dynamic Gaussian Process Regressor Repository
 Untuk memenuhi Tugas Besar MA4282 Kapita Selekta Statistika II Fakultas Matematika dan Ilmu Pengetahuan Alam Institut Teknologi Bandung (FMIPA ITB)
 
-Dibuat oleh Andika Zidane Faturrahman (10119111) 
+Dibuat oleh 
+* Matias Judatama Partahi	(10119027)
+* Susanty Sitompul	(10119060)
+* Fadhilah Sana Rachmaputri	(10119085)
+* Yoshua Robertus Hartono	(10119102)
+* Andika Zidane Faturrahman (10119111) 
 
 Repo ini mengandung kode Python berisi class Dynamic Gaussian Process Regressor (GPR) sebagai berikut:
 * model.py: File python mengandung algoritma Dynamic Gaussian Process Regressor
