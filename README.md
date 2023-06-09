@@ -12,6 +12,7 @@ Repo ini mengandung kode Python berisi class Dynamic Gaussian Process Regressor 
 * model.py: File python mengandung algoritma Dynamic Gaussian Process Regressor
 * kernels.py: File python yang berisi algoritma kernel Radial Basis Function (RBF) and Automatic Relevance Determination (ARD)
 * K4_Tubes_DynamicGPR (1).ipynb: Python notebook berisi analisis data Airline Delay (diperoleh dari https://www.kaggle.com/datasets/giovamata/airlinedelaycauses) dan prediksi variabel Departure Delay dari suatu maskapai penerbangan dengan menggunakan Dynamic Gaussian Process Regressor
+* Poster Tugas Besar K4.pdf: Poster berisi ringkasan terkait laporan prediksi model Dynamic Gaussian Process Regressor (GPR)
 
 Referensi:
 1. Beckers, Thomas. (2021). An Introduction to Gaussian Process Models. arXiv preprint arXiv:2102.05497.
